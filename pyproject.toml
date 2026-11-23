@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["backend"]
+
+[project]
+name = "ai-sniper-system"
+version = "0.1.0"
+description = "GMO FX API 連携・完全サーバーレスの予約型 AI トレードシステム"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.27",
+    "requests>=2.31",
+    "boto3>=1.34",
+    "python-dotenv>=1.0",
+    # 🔴 上限を必ず塞ぐこと（#320）。anthropic 1.0.0 は HTTP クライアントを
+    # httpx → httpx2 に変更しており、`>=0.112` のままだとリリース当日に
+    # 全 PR と main の CI が赤くなる（2026-08-21 に実際に発生）。
+    # Lambda は lambda-requirements/constraints で 0.112.0 に exact pin されている。
+    # CI が別メジャーを検証していると「CI は通るが本番と違う SDK」になるため系列を揃える。
+    # 上げるときは #320 の観点（messages.parse / timeout / stop_reason / httpx2）を
+    # 公式一次情報で裏取りしてから。
+    "anthropic>=0.112,<1",  # messages.parse + Pydantic 構造化出力（#16, 検証済みバージョン）
+    "structlog>=24.1",
+]
+
+[project.optional-dependencies]
+# ⚠️ ここの範囲指定は**版の正ではない**（#323）。実際に入れる版は
+# requirements-dev.txt（直接）+ constraints-dev.txt（完全 pin）が正で、
+# `make install` はそちらから入れる。
+# `pip install -e ".[dev]"` を直接使うと CI と違う版が入り、
+# tests/infra/test_dev_pins.py が落ちる（誤検知ではなく正しい検知）。
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "boto3-stubs[secretsmanager,s3,dynamodb]>=1.34",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--cov=backend/src --cov=config --cov-report=term-missing"
+markers = [
+    "real_decision_log_read: 判断バッチの既存判断ログ読み込み（decision_batch._read_existing_decision_log）を実関数のまま使う（#402）",
+    "real_decision_marker: 判断バッチの判断済みマーカー（dynamodb_store.is_decision_concluded / mark_decision_concluded）を実関数のまま使う（#404）",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+explicit_package_bases = true

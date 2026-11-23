@@ -1,0 +1,8 @@
+# Lambda ランタイムにバンドルする実行時依存（pyproject の dependencies に対応）。
+# boto3/botocore は Lambda ランタイムに同梱のため除外（サイズ削減）。
+# 再現性のためバージョンは exact pin。推移依存は lambda-constraints.txt で固定する。
+httpx==0.28.1
+requests==2.34.2
+python-dotenv==1.2.2
+anthropic==0.112.0
+structlog==26.1.0

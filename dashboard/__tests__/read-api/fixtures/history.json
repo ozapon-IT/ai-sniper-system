@@ -1,0 +1,29 @@
+{
+  "count": 3,
+  "summaries": [
+    {
+      "date": "2099-01-06",
+      "direction": "SHORT",
+      "execution_required": true,
+      "has_note": true,
+      "rationale_summary": "synthetic rationale",
+      "status": "stubbed"
+    },
+    {
+      "date": "2099-01-05",
+      "direction": "NO_ENTRY",
+      "execution_required": false,
+      "has_note": false,
+      "rationale_summary": "synthetic rationale",
+      "status": "no_entry"
+    },
+    {
+      "date": "2099-01-02",
+      "direction": null,
+      "execution_required": null,
+      "has_note": false,
+      "rationale_summary": "",
+      "status": "skipped"
+    }
+  ]
+}

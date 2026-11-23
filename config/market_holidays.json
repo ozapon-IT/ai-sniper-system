@@ -1,0 +1,27 @@
+{
+  "description": "FX 実質休場日カレンダー（§3.5）。full_close は早期 return、us_thin は薄商い注意フラグのみ。",
+  "full_close": [
+    {"date": "2026-01-01", "name": "元日 (New Year's Day)"},
+    {"date": "2026-04-03", "name": "グッドフライデー (Good Friday)"},
+    {"date": "2026-12-25", "name": "クリスマス (Christmas Day)"},
+    {"date": "2027-01-01", "name": "元日 (New Year's Day)"},
+    {"date": "2027-04-02", "name": "グッドフライデー (Good Friday)"},
+    {"date": "2027-12-25", "name": "クリスマス (Christmas Day)"}
+  ],
+  "us_thin": [
+    {"date": "2026-01-19", "name": "マーティン・ルーサー・キング・デー (MLK Day, US)"},
+    {"date": "2026-02-16", "name": "プレジデンツデー (Presidents Day, US)"},
+    {"date": "2026-05-25", "name": "メモリアルデー (Memorial Day, US)"},
+    {"date": "2026-07-03", "name": "独立記念日振替 (Independence Day observed, US)"},
+    {"date": "2026-09-07", "name": "レイバーデー (Labor Day, US)"},
+    {"date": "2026-11-26", "name": "感謝祭 (Thanksgiving Day, US)"},
+    {"date": "2026-12-24", "name": "クリスマスイブ早期クローズ (Christmas Eve, early close — FX thin liquidity)"},
+    {"date": "2027-01-18", "name": "マーティン・ルーサー・キング・デー (MLK Day, US)"},
+    {"date": "2027-02-15", "name": "プレジデンツデー (Presidents Day, US)"},
+    {"date": "2027-05-31", "name": "メモリアルデー (Memorial Day, US)"},
+    {"date": "2027-07-05", "name": "独立記念日振替 (Independence Day observed, US)"},
+    {"date": "2027-09-06", "name": "レイバーデー (Labor Day, US)"},
+    {"date": "2027-11-25", "name": "感謝祭 (Thanksgiving Day, US)"},
+    {"date": "2027-12-24", "name": "クリスマスイブ早期クローズ (Christmas Eve, early close — FX thin liquidity)"}
+  ]
+}

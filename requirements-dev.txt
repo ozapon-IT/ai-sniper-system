@@ -1,0 +1,28 @@
+# 開発・CI のツールチェーン（直接依存）。**exact pin**（#323）。
+#
+# 🔴 なぜ範囲指定（>=）ではなく exact pin か:
+#   #320 では anthropic の上限なしで CI が全滅した。しかし dev ツールに
+#   `mypy<3` のような上限を付けても止まらない。すでに mypy 2.3.1 に乗っており
+#   `<3` は 2.4 を通すうえ、**リンタはマイナーでも新ルールが増える**（ruff は 0.x）。
+#   anthropic に `<1` が効いたのは 1.0 の httpx2 という切れ目が見えていたからで、
+#   同じ手はここでは使えない。だから exact pin にする。
+#
+# 完全 pin（推移依存）は constraints-dev.txt。とくに mypy-boto3-* / botocore-stubs は
+# **型スタブなので mypy の結果に直接効く**。ここを固定しないと目的を達しない。
+#
+# 更新手順（意図的に行うこと。版を上げる PR で差分が見えるようにする）:
+#   1. このファイルの版を上げる
+#   2. make install
+#   3. pip list --format=freeze | sort で constraints-dev.txt を再生成
+#      （ランタイム側 = lambda-constraints.txt に載る分は含めない）
+#   4. ruff / mypy / pytest が緑であることを確認
+#
+# ⚠️ boto3 は**本番と揃わない**。Lambda ランタイム同梱で版は AWS が決めるため
+#    （#322）。ここでの pin は CI の再現性のためだけで、本番の検証にはならない。
+mypy==2.3.1
+ruff==0.16.4
+pytest==9.1.1
+pytest-asyncio==1.4.0
+pytest-cov==7.1.0
+boto3==1.43.78
+boto3-stubs[secretsmanager,s3,dynamodb]==1.43.78

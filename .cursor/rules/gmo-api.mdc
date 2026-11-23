@@ -1,0 +1,16 @@
+---
+description: GMO FX API クライアント実装時の必須規約（署名・レートリミット・エンドポイント）
+globs: "**/gmo_*.py,**/clients/**,**/api/**"
+alwaysApply: false
+---
+
+# GMO FX API 実装ルール
+
+該当ファイルを編集する前に必ず [../../.claude/rules/gmo-api.md](../../.claude/rules/gmo-api.md) を Read し、全文に従うこと。
+
+## 最重要（編集前に必ず守る）
+
+- 署名対象パスは `/v1/...`（`/private` を含めない）。リクエスト URL は `/private/v1/...`。両者は別引数。
+- エンドポイントは `gmo_fx_endpoints.py` の定数のみ。IFD-OCO は `ifoOrder`。
+- Private API: POST 1回/秒・GET 6回/秒。連続 POST 間に `sleep(>=1s)`。
+- 未確定フィールドは推測で書かない。スパイク → `docs/spikes/` 記録後に実装。

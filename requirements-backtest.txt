@@ -1,0 +1,7 @@
+# ローカルバックテスト（backtest/・scripts/backtest.py）専用。Lambda には載せない。
+# fxlab は約定判定・klines キャッシュ・実験レジストリの実体（プライベートリポジトリ）。
+# 版はコミットで固定する。上げるときは fx-backtest-lab 側の回帰テスト
+# （tests/strategies/test_regression.py）と、ここの tests/backtest が緑であることを確認する。
+# 公開版では fxlab を同梱しない（作者の非公開リポジトリ）。
+# fxlab が無い環境では tests/backtest は test_guardrails.py 以外を収集しない。
+# fxlab @ git+https://github.com/<private>/fx-backtest-lab.git@<commit>

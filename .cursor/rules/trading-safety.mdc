@@ -1,0 +1,16 @@
+---
+description: 発注・手仕舞い・ロット計算など資金が動く処理の安全規約
+globs: "**/batch/**,**/orders/**,**/strategy/**,**/risk/**"
+alwaysApply: false
+---
+
+# トレード安全ルール
+
+該当ファイルを編集する前に必ず [../../.claude/rules/trading-safety.md](../../.claude/rules/trading-safety.md) を Read し、全文に従うこと。
+
+## 最重要（編集前に必ず守る）
+
+- Phase 1 では発注系 POST を実送信しない（スタブ）。実送信は `ALLOW_LIVE_ORDERS=True` **かつ** `TRADING_PHASE`∈{`2`,`spike`} の two-key のみ。
+- `stop_loss` / `take_profit` は LLM に出させない。Python が `ATR_h = ATR14 × √(HOLD_HOURS/24)` を基準に、`sl_profile`（standard→0.7 / wide→0.8）と `rr_target`（1.0〜1.5）から算出し、範囲外は clamp する。
+- 手仕舞い順序: 新規注文 cancel → 決済 OCO cancel → 成行 close（逆順禁止）。
+- 発注前バリデーション（価格序列・R:R・tick 丸め・最小乖離・current-price deviation limit = `MAX_ENTRY_DISTANCE_ATR × ATR14`・ロット下限100）違反時は発注せずログ記録。

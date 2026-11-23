@@ -1,0 +1,106 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit 設定 — AI Sniper System
+# レビュー観点は AGENTS.md / docs/system_requirements.md(Ver.3.7) の安全ガードレールに準拠。
+
+language: "ja-JP"
+early_access: false
+tone_instructions: >-
+  実資金が動く自動取引システムのレビューである。安全性・お金の事故防止を最優先し、
+  AGENTS.md の安全ガードレール違反は最重要指摘として扱うこと。
+
+reviews:
+  # 安全クリティカルなプロジェクトのため指摘は積極的に（ノイズが多ければ "chill" に変更可）
+  profile: "assertive"
+  request_changes_workflow: false
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: false
+  sequence_diagrams: true
+  changed_files_summary: true
+  poem: false
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    # ドラフト PR もレビューする（ソロ開発の早期フィードバック用。不要なら false）
+    drafts: false
+    base_branches:
+      - "main"
+
+  # レビュー対象から除外
+  path_filters:
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/.venv/**"
+    - "!**/node_modules/**"
+    - "!**/*.lock"
+    - "!**/package-lock.json"
+
+  # パス別レビュー指示 — AGENTS.md のガードレールをコードレビューに反映
+  path_instructions:
+    - path: "**/*.py"
+      instructions: >-
+        Python 3.x / 型注釈必須 / ruff + black 準拠を確認。ログは構造化(JSON)で、
+        タイムスタンプと LLM トークン消費数を含むこと(税務証跡 §5.2)。
+        例外で握りつぶして安全処理をスキップしていないか確認する。
+
+    - path: "{**/gmo_*.py,**/clients/**,**/api/**}"
+      instructions: >-
+        GMO FX API 実装の最重要観点(§1.2,1.4,7.2):
+        (1) HMAC 署名対象パスは `/v1/...`(`/private` を含めない)。リクエスト URL の
+        `/private/v1/...` と別引数で扱えているか。署名パス一致のユニットテストがあるか。
+        (2) エンドポイントは定数ファイル経由のみ。パスのハードコード、ホスト誤り
+        (正: forex-api.coin.z.com)、IFD-OCO のエンドポイント名(正: ifoOrder。
+        ifdocoOrder/ifdOrder は誤り)を検出。
+        (3) レートリミット POST 1回/秒・GET 6回/秒。連続 POST 間に sleep(>=1s) があるか。
+        (4) 401 時の再署名リトライは1回のみか。
+
+    - path: "{**/batch/**,**/orders/**,**/strategy/**,**/risk/**}"
+      instructions: >-
+        トレード安全の最重要観点(§2,3.2,3.4,4,6.2):
+        (1) Phase 1(モック)で発注系 POST(ifoOrder/closeOrder/cancelOrders)を
+        実送信していないか。実送信は ALLOW_LIVE_ORDERS=True かつ TRADING_PHASE∈{2,spike} の
+        両方を満たすときのみ(two-key interlock・既定は安全側)。MVP_MODE は 100通貨固定の制御で
+        封じ込め判定に使わない。
+        (2) stop_loss は LLM 出力ではなく Python が `entry ∓ ATR×atr_multiplier` で算出しているか。
+        (3) 発注前バリデーション(価格序列・R:R 下限・tick 丸め・最小乖離・ロット下限100)を
+        必ず通しているか。
+        (4) 手仕舞いは [新規 cancel → 決済 OCO cancel → 成行 close] の順(逆順は建玉ロックで決済不可)。
+        (5) 冪等性: 発注前に activeOrders/openPositions/当日ロックを確認し二重発注を防いでいるか。
+        休場日の早期 return があるか。
+        (6) 時刻は JST 前提。素の today-1 で前日足を取らず直近確定取引日を使っているか。
+
+    - path: "**/test_*.py"
+      instructions: >-
+        署名パスが `/v1/...` で始まる検証、価格バリデーション(序列・R:R)、
+        手仕舞い順序などの安全ロジックにテストがあるか確認する。
+
+    - path: "{**/*.ts,**/*.tsx,**/dashboard/**}"
+      instructions: >-
+        ダッシュボード(§6.3):API Secret をブラウザに載せていないか。GMO Private API を
+        直接呼ばず Read API / Kill Switch Lambda 経由か。Kill Switch には確認ダイアログがあるか。
+
+    - path: "{**/*.tf,**/*.yaml,**/*.yml,**/serverless.yml,**/template.yaml}"
+      instructions: >-
+        インフラ(§1.1,1.6,7.2):cron スケジューラに timezone: Asia/Tokyo が明示されているか。
+        シークレットを平文で env に置かず Secrets Manager/SSM 参照か。S3 はバージョニング・
+        暗号化有効か。Lambda の権限が過剰でないか(最小権限)。
+
+  tools:
+    ruff:
+      enabled: true
+    gitleaks:
+      enabled: true   # APIキー等のシークレット混入を検出(ガードレール8)
+    markdownlint:
+      enabled: true
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: "auto"
+  issues:
+    scope: "auto"
+  pull_requests:
+    scope: "auto"

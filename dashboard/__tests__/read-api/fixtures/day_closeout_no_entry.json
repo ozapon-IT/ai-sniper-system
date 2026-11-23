@@ -1,0 +1,26 @@
+{
+  "closeout": {
+    "executions_count": 0,
+    "executions_fetched": true,
+    "exit_reasons": {},
+    "mode": "weekday",
+    "note_complete": true,
+    "pnl": {
+      "close_count": 0,
+      "fee_total": "0",
+      "loss_gain_total": "0",
+      "realized_total": "0",
+      "settled_swap_total": "0"
+    },
+    "scope": "day",
+    "status": "ok"
+  },
+  "date": "2099-01-05",
+  "direction": "NO_ENTRY",
+  "equity": null,
+  "lot": null,
+  "plan": null,
+  "sniper_logs": null,
+  "status": "no_entry",
+  "trade_note": null
+}

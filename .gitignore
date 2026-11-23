@@ -1,0 +1,73 @@
+# 環境変数・シークレット（コミット禁止 §7.2）
+.env
+.env.local
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ログ・一時ファイル
+logs/
+*.log
+tmp/
+
+# バックテスト成果物（klines キャッシュ・run 出力はコミットしない）
+backtest/cache/
+# ~/.cache/fxlab へのシンボリックリンクにしてよい（末尾 / はリンクに一致しない）
+backtest/cache
+backtest/runs/
+backtest/experiments.jsonl
+# 探索スクリプトの生成データ（scratchpad の .py は追跡・生成 .jsonl は追跡しない）
+scratchpad/*.jsonl
+
+# Node.js
+node_modules/
+
+# Terraform（state は remote backend・ローカル成果物/秘匿値はコミット禁止）
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+tfplan
+*.tfplan
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+# 🔴 環境の運用姿勢（schedule_state / two-key）は **git 管理する**。
+# 秘匿値ではなく、再現性とレビュー可能性が要るため（infra/terraform/README.md 参照）。
+# 例外は environments 配下に限定する（どこにでも *.auto.tfvars を置けると、
+# credentials.auto.tfvars のような名前で秘匿値をコミットできてしまう）。
+# 🔴 ここに置いてよいのは運用姿勢の宣言のみ。シークレットの「値」は入れない（AGENTS.md #8）。
+!infra/terraform/environments/*/*.auto.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+infra/terraform/build/
+infra/terraform/modules/serverless_app/.build/
+infra/terraform/modules/orb_demo/.build/
+# ロックファイルは root（environments/*）にのみ置く。module 配下は validate の副産物。
+infra/terraform/modules/*/.terraform.lock.hcl
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp

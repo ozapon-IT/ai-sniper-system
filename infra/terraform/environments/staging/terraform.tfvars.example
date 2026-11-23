@@ -1,0 +1,18 @@
+# staging 用 tfvars サンプル。実値を入れたファイルは *.tfvars でコミット禁止（.gitignore 済み）。
+#
+# 🔴 **運用姿勢（trading_phase / allow_live_orders / schedule_state /
+#    orb_schedule_state / orb_demo_enabled）はこのファイルではなく
+#    `phase2.auto.tfvars` が宣言する**（git 管理・terraform が自動ロード）。
+#    -var の付け忘れでシステムが停止する事故を防ぐため、値をファイル化して git に入れた。
+#    姿勢を変えるときは `phase2.auto.tfvars` を編集して PR を出すこと。
+#
+# 本ファイルは「ローカルで一時的に上書きしたいとき」のサンプルとして残す。
+# 使い方: cp terraform.tfvars.example terraform.tfvars して値を埋める
+#        （terraform.tfvars は *.auto.tfvars より優先度が高い）。
+
+# --- シークレットは tfvars に書かない（AGENTS.md #8） ---
+# Anthropic API キー / Slack Webhook / GMO 資格情報などの「値」は Terraform 入力に渡さない。
+# Secrets Manager に out-of-band で格納し、Lambda は実行時に名前で取得する:
+#   your-app/anthropic-api-key  (ANTHROPIC_SECRET_NAME)
+#   your-app/gmo-credentials    (GMO_CREDENTIALS_SECRET_NAME)
+# シークレット名を変える場合のみ module 変数（*_secret_name）で名前を上書きする。

@@ -1,0 +1,30 @@
+{
+  "closeout": {
+    "executions_count": null,
+    "executions_fetched": null,
+    "exit_reasons": null,
+    "mode": "weekday",
+    "note_complete": null,
+    "pnl": null,
+    "scope": "day",
+    "status": "market_closed"
+  },
+  "date": "2099-01-06",
+  "direction": "SHORT",
+  "equity": 123456.0,
+  "lot": 100,
+  "plan": {
+    "atr_h": 0.57,
+    "atr_multiplier": 0.7,
+    "entry_price": 100.5,
+    "lot": 100,
+    "order_type": "LIMIT",
+    "rr_target": 1.0,
+    "sl_profile": "standard",
+    "stop_loss": 100.1,
+    "take_profit": 100.9
+  },
+  "sniper_logs": null,
+  "status": "stubbed",
+  "trade_note": "## synthetic note"
+}

@@ -1,0 +1,7 @@
+# mise — ツールバージョン管理（https://mise.jdx.dev）
+# ローカル開発と CI（.github/workflows/ci.yml の mise-action）で共通の唯一の正。
+# Node は現行 LTS（24.x "Krypton"）。`mise install` で導入。
+# 再現性のためパッチまで固定（ローカル/CI で同一バージョンを保証）。更新は意図的に bump する。
+[tools]
+node = "24.18.0"
+terraform = "1.15.7"

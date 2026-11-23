@@ -1,0 +1,40 @@
+{
+  "closeout": {
+    "executions_count": 8,
+    "executions_fetched": true,
+    "exit_reasons": {
+      "stop_loss": 1,
+      "take_profit": 2,
+      "time_stop": 1
+    },
+    "mode": "friday",
+    "note_complete": true,
+    "pnl": {
+      "close_count": 4,
+      "fee_total": "0",
+      "loss_gain_total": "350",
+      "realized_total": "310",
+      "settled_swap_total": "-40"
+    },
+    "scope": "week",
+    "status": "ok"
+  },
+  "date": "2099-01-09",
+  "direction": "SHORT",
+  "equity": 123456.0,
+  "lot": 100,
+  "plan": {
+    "atr_h": 0.57,
+    "atr_multiplier": 0.7,
+    "entry_price": 100.5,
+    "lot": 100,
+    "order_type": "LIMIT",
+    "rr_target": 1.0,
+    "sl_profile": "standard",
+    "stop_loss": 100.1,
+    "take_profit": 100.9
+  },
+  "sniper_logs": null,
+  "status": "stubbed",
+  "trade_note": "## synthetic note"
+}

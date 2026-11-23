@@ -1,0 +1,12 @@
+{
+  "equity": 1000000,
+  "last_updated": "2099-01-08T20:30:00+09:00",
+  "lot": 100,
+  "sniper_logs": null,
+  "status": "idle",
+  "today_plan": {
+    "direction": "LONG",
+    "note": "synthetic"
+  },
+  "trade_note": "## synthetic note"
+}

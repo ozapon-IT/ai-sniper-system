@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # 🔴 ランタイム依存は Lambda の pin から入れる（#322）。
+      # pyproject の `>=` から解決すると CI が本番と違う SDK を検証する。
+      # #320 では anthropic 1.0.0（httpx→httpx2）を引いて CI が全滅し、
+      # 上限を付けた後も CI 0.125.0 / 本番 0.112.0 の乖離が残っていた。
+      # ⚠️ boto3 は Lambda ランタイム同梱で pin では揃わない（#322 参照）。
+      - name: Install dependencies
+        run: make install
+
+      # ローカルバックテストの依存 fxlab は作者の非公開リポジトリのため、公開版の CI では入れない。
+      # その場合 tests/backtest は test_guardrails.py 以外を収集しない（tests/backtest/conftest.py）。
+
+      - name: Lint
+        run: ruff check backend/ tests/
+
+      - name: Type check
+        run: mypy backend/src/
+
+      # 🔴 read-api / kill-switch はアプリ層の認証を持たない（Ver 3.7 / #177）。
+      # HTTP 公開しないこと自体が唯一の防御なので、公開リソースの追加を機械的に落とす。
+      - name: No public endpoints (§1.6.1 必須)
+        run: python scripts/check_no_public_endpoints.py
+
+      # 🔴 ORB はリポジトリ分離しない判断（2026-08-28・#331）。分離で得られるはずの
+      # 「勝手に絡まらない保証」をここで代替する。docs も「逆依存 0」を明記している。
+      - name: Import boundary (夜型 / ORB・#331)
+        run: python scripts/check_import_boundary.py
+
+      - name: Signer path tests (§7.1 CI 必須)
+        run: pytest tests/gmo/test_signer_paths.py tests/gmo/test_retry.py -v
+
+      - name: Phase1 integration tests (§7.1 必須ケース)
+        run: pytest tests/integration/ -v
+
+      - name: Phase1 simulation 1-day (§7.1 短縮版 CI)
+        run: MOCK_MODE=True python scripts/run_local_simulation.py --days 1
+
+      - name: Test
+        run: pytest
+
+  # dashboard（Next.js・#390）。既存の test ジョブとは独立（needs なし）。
+  dashboard:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dashboard
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up mise (Node)
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+        with:
+          cache: true
+
+      - name: Cache npm
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-dashboard-${{ hashFiles('dashboard/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-dashboard-
+
+      - name: Install dashboard dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # 手元専用モード（#393）: ブラウザへ配るバンドルに AWS の認証情報・SDK・関数名・ARN が無いこと。
+      - name: Check client bundle has no AWS strings
+        run: npm run check:bundle
+
+      # E2E（主要導線・axe・375px）。webServer が build + start を行う。
+      # 出典: node_modules/next/dist/docs/01-app/02-guides/testing/playwright.md・
+      # https://playwright.dev/docs/browsers#install-system-dependencies（参照日 2026-11-22）
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E
+        run: npm run test:e2e
